@@ -1,11 +1,12 @@
 import os 
 import sys 
-from src.exception import CustonException
+from src.exception import CustomException
 from src.logger import logging
 import pandas as pd
+from src.components.model_trainer import ModelTrainer,ModelTrainerConfig
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
-
+from src.components.data_transformation import DataTranformation,DataTranformationConfig
 @dataclass
 class DataIngestionConfig:
     train_data_path : str=os.path.join('artifacts',"train.csv")
@@ -22,7 +23,7 @@ class DataIngestion:
         logging.info("Entered the data ingestion method or component")
 
         try:
-            df = pd.read_csv(r'notebook\data\stud.csv')  # fixed path issue
+            df = pd.read_csv(r'C:\MLPROJECT\notebook\data\stud.csv')  # fixed path issue
 
             logging.info('Read the dataset as dataframe')
 
@@ -46,10 +47,14 @@ class DataIngestion:
             )
 
         except Exception as e:
-            raise CustonException(e, sys)
+            raise CustomException(e, sys)
 
         
 
 if __name__=="__main__":
     obj=DataIngestion()
-    obj.initiate_data_ingestion()
+    train_data,test_data = obj.initiate_data_ingestion()
+    data_transformation = DataTranformation()
+    train_arr,test_arr,_=data_transformation.initiate_data_tranformation(train_data,test_data)
+    modelTrainer = ModelTrainer()
+    print(modelTrainer.initiate_model_trainer(train_arr,test_arr) )

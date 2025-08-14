@@ -13,7 +13,7 @@ from src.logger import logging
 from src.utils import save_object
 @dataclass
 class DataTranformationConfig:
-    preprocessor_obj_file_path = os.path.join('artifact','preprocessor.pkl')
+    preprocessor_obj_file_path = os.path.join('artifacts','preprocessor.pkl')
 
 
 
@@ -22,14 +22,12 @@ class DataTranformation:
         self.data_transformation_config = DataTranformationConfig()
 
     def get_data_transformer_obj(self):
-
-        '''
-        This function is responsible for data tranformation
-        
-        '''
+        """
+        This function is responsible for data transformation.
+        """
         try:
-            numerical_columns = ['writing_score','reading_score']
-            categorical_columns =[
+            numerical_columns = ['writing_score', 'reading_score']
+            categorical_columns = [
                 'gender',
                 'race_ethnicity',
                 'parental_level_of_education',
@@ -37,34 +35,33 @@ class DataTranformation:
                 'test_preparation_course',
             ]
 
-            num_pipeline = Pipeline(
-                steps=[
-                    ("imputer",SimpleImputer(strategy="median")),
-                    ("scaler",StandardScaler())
-                ]
-            )
+            num_pipeline = Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="median")),
+                ("scaler", StandardScaler())
+            ])
 
-            cat_pipeline = Pipeline(
-                steps=[
-                    ("imputer",SimpleImputer(strategy="most_frequent")),
-                    ("one_hot_encoder",OneHotEncoder()),
-                    ("scaler",StandardScaler())
-                ]
-            )
+            cat_pipeline = Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("one_hot_encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+                ("scaler", StandardScaler())
+            ])
+
             logging.info(f"Numerical columns: {numerical_columns}")
-            logging.info(f"Categoricals columns: {numerical_columns}")
+            logging.info(f"Categorical columns: {categorical_columns}")
 
             preprocessor = ColumnTransformer(
-                [
-                    ("num_pipeline",num_pipeline,numerical_columns)
-                    ('cat_pipeline',cat_pipeline,categorical_columns)
+                transformers=[
+                    ("num_pipeline", num_pipeline, numerical_columns),
+                    ("cat_pipeline", cat_pipeline, categorical_columns)
                 ]
             )
 
             return preprocessor
 
         except Exception as e:
-            raise CustomException(e,sys)
+            raise CustomException(e, sys)
+
+            
         
     def initiate_data_tranformation(self,train_path,test_path):
         try:
@@ -114,5 +111,5 @@ class DataTranformation:
 
 
 
-        except:
-            pass
+        except Exception as e:
+            raise CustomException(e,sys)
